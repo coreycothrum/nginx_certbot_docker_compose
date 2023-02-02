@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+    certbot:
+        image: coreycothrum/certbot:v0.1.0
+        environment:
+            DOMAIN_NAME: ${DOMAIN_NAME}
+            DOMAIN_EMAIL: ${DOMAIN_EMAIL}
+        restart: always
+        volumes:
+            - CERTBOT_CERTS:/etc/letsencrypt:rw
+            - CERTBOT_WEBROOT:/var/www/certbot:rw
+    nginx:
+        image: coreycothrum/nginx:v0.1.0
+        depends_on:
+            - certbot
+        environment:
+            DOMAIN_NAME: ${DOMAIN_NAME}
+        ports:
+            - '80:80'
+            - '443:443'
+        restart: always
+        volumes:
+            - CERTBOT_CERTS:/etc/letsencrypt:ro
+            - CERTBOT_WEBROOT:/var/www/certbot:ro
+            - ./html:/usr/share/nginx/html/:ro
+volumes:
+    CERTBOT_CERTS:
+    CERTBOT_WEBROOT:
